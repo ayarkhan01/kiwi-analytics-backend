@@ -1,0 +1,5 @@
+mysql-connector-python
+mysqlclient
+PyMySQL
+SQLAlchemy
+typing_extensions
