@@ -1,14 +1,20 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Enum, ForeignKey, DateTime, func
+from sqlalchemy.orm import relationship
+from db import Base
+import enum
 
-Base = declarative_base()
+class StrategyEnum(enum.Enum):
+    short_term = "short_term"
+    long_term = "long_term"
 
 class Portfolio(Base):
-    __tablename__ = 'portfolio'
+    __tablename__ = 'portfolios'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(500), nullable=False)
-    strategy = Column(String(100), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    name = Column(String(255), nullable=False)
+    strategy = Column(Enum(StrategyEnum), nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-    def __str__(self):
-        return f"Portfolio(id={self.id}, name='{self.name}', strategy='{self.strategy}')"
+    user = relationship("User", backref="portfolios")

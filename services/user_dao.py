@@ -1,25 +1,21 @@
 from db import get_session
 from models.users import User
 
-def create_user(username, password, balance):
-    user=User(username=username, password=password, balance=balance)
+def create_user(username, password, balance=0.0):
+    user = User(username=username, password=password, balance=balance)
     with get_session() as session:
         session.add(user)
-        session.commit()
 
 def password_match(username, password):
-    session = get_session()
-    user = session.query(User).filter(User.username==username).first()
-    if user is None:
-        return False
-    if user.password == password:
-        print("Password match")
-        return True
+    with get_session() as session:
+        user = session.query(User).filter_by(username=username).first()
+        return user is not None and user.password == password
 
-def get_all():
-    session = get_session()
-    return session.query(User).all()
+def get_user_id(username):
+    with get_session() as session:
+        user = session.query(User).filter_by(username=username).first()
+        return user.id if user else None
 
-def get_active():
-    session = get_session()
-    return session.query(User).filter(User.is_active==True).all()
+def get_all_users():
+    with get_session() as session:
+        return session.query(User).all()
