@@ -10,4 +10,6 @@ def get_conn_string():
     port = os.getenv("DB_PORT", "3306")
     database = os.getenv("DB_NAME")
 
+    if not all([username, password, host, port, database]):
+        raise ValueError("Database connection details are missing in environment variables.")
     return f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}"
