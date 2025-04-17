@@ -1,6 +1,10 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DECIMAL, DateTime, func, UniqueConstraint
 from sqlalchemy.orm import relationship
 from db import Base
+from models.portfolio import Portfolio
+portfolio = relationship(Portfolio, backref="positions")
+
+
 
 class Position(Base):
     __tablename__ = 'positions'
@@ -14,5 +18,3 @@ class Position(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (UniqueConstraint('portfolio_id', 'ticker', name='uq_portfolio_ticker'),)
-
-    portfolio = relationship("Portfolio", backref="positions")
