@@ -22,8 +22,9 @@ def add_or_update_position(portfolio_id, ticker, quantity, price):
         return position
 
 def get_positions_by_portfolio(portfolio_id):
-    """
-    Fetch all positions (holdings) for a specific portfolio.
-    """
     with get_session() as session:
-        return session.query(Position).filter_by(portfolio_id=portfolio_id).all()
+        positions = session.query(Position).filter_by(portfolio_id=portfolio_id).all()
+        for pos in positions:
+            _ = pos.id, pos.portfolio_id, pos.ticker, pos.quantity, pos.average_price, pos.created_at, pos.updated_at
+            session.expunge(pos)
+        return positions
