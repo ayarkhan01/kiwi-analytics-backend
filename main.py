@@ -1,4 +1,6 @@
 from services.user_dao import create_user, password_match, get_user_id
+from services.fetch_team import fetch_team_members
+from flask import jsonify
 
 username = input("Enter username: ")
 password = input("Enter password: ")
