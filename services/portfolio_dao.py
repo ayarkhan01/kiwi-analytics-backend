@@ -16,4 +16,15 @@ def delete_portfolio(portfolio_id):
 
 def get_portfolios_by_user(user_id):
     with get_session() as session:
-        return session.query(Portfolio).filter_by(user_id=user_id).all()
+        portfolios = session.query(Portfolio).filter_by(user_id=user_id).all()
+        return [
+            {
+                "id": p.id,
+                "name": p.name,
+                "strategy": p.strategy.value,  # use .name if you want 'short_term' instead of 'short_term'
+                "created_at": p.created_at.isoformat(),  # optional
+                "updated_at": p.updated_at.isoformat()   # optional
+            }
+            for p in portfolios
+        ]
+
