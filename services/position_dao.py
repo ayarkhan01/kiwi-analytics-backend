@@ -29,6 +29,13 @@ def buy_stock(portfolio_id, ticker, quantity, price):
         session.commit()
         return position
 
+def get_positions_by_portfolio(portfolio_id):
+    with get_session() as session:
+        positions = session.query(Position).filter_by(portfolio_id=portfolio_id).all()
+        for pos in positions:
+            _ = pos.id, pos.portfolio_id, pos.ticker, pos.quantity, pos.average_price, pos.created_at, pos.updated_at
+            session.expunge(pos)
+        return positions
 def sell_stock(portfolio_id, ticker, quantity, price):
     with get_session() as session:
         position = session.query(Position).filter_by(portfolio_id=portfolio_id, ticker=ticker).first()
