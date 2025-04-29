@@ -5,7 +5,6 @@ from models.portfolio import Portfolio
 portfolio = relationship(Portfolio, backref="positions")
 
 
-
 class Position(Base):
     __tablename__ = 'positions'
 

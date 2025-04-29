@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Enum, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from db import Base
 import enum
+from models.users import User
 
 class StrategyEnum(enum.Enum):
     short_term = "short_term"
@@ -23,3 +24,4 @@ class Portfolio(Base):
         return (f"<Portfolio(id={self.id}, user_id={self.user_id}, "
                 f"name='{self.name}', strategy='{self.strategy.name}', "
                 f"created_at={self.created_at}, updated_at={self.updated_at})>")
+    user = relationship(User, backref="portfolios")

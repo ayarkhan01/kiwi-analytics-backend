@@ -3,3 +3,4 @@ mysqlclient
 PyMySQL
 SQLAlchemy
 typing_extensions
+dotenv
