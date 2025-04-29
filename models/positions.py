@@ -17,3 +17,9 @@ class Position(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (UniqueConstraint('portfolio_id', 'ticker', name='uq_portfolio_ticker'),)
+
+    def __repr__(self):
+        return (f"<Position(id={self.id}, portfolio_id={self.portfolio_id}, "
+                f"ticker='{self.ticker}', quantity={self.quantity}, "
+                f"average_price={self.average_price}, "
+                f"created_at={self.created_at}, updated_at={self.updated_at})>")
