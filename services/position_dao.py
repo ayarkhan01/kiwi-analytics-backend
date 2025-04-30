@@ -4,11 +4,16 @@ from services.transaction_dao import add_transaction
 from db import get_session
 from decimal import Decimal
 
+
 def buy_stock(portfolio_id, ticker, quantity, price):
-    price = Decimal(str(price))  # ✅ ensures safe Decimal conversion
+    price = Decimal(str(price))
 
     with get_session() as session:
-        position = session.query(Position).filter_by(portfolio_id=portfolio_id, ticker=ticker).first()
+        position = session.query(Position).filter_by(
+            portfolio_id=portfolio_id,
+            ticker=ticker
+        ).first()
+
         if position:
             total_quantity = position.quantity + quantity
             position.average_price = (
@@ -24,10 +29,9 @@ def buy_stock(portfolio_id, ticker, quantity, price):
             )
             session.add(position)
 
-        # Record transaction
-        add_transaction(session, portfolio_id, ticker, quantity, price, TransactionType.buy)
         session.commit()
-        return position
+
+        return f"Successfully bought {quantity} of {ticker} stock at ${float(price):.2f}"
 
 def get_positions_by_portfolio(portfolio_id):
     with get_session() as session:
@@ -36,9 +40,15 @@ def get_positions_by_portfolio(portfolio_id):
             _ = pos.id, pos.portfolio_id, pos.ticker, pos.quantity, pos.average_price, pos.created_at, pos.updated_at
             session.expunge(pos)
         return positions
+
 def sell_stock(portfolio_id, ticker, quantity, price):
+    price = Decimal(str(price))
+
     with get_session() as session:
-        position = session.query(Position).filter_by(portfolio_id=portfolio_id, ticker=ticker).first()
+        position = session.query(Position).filter_by(
+            portfolio_id=portfolio_id, 
+            ticker=ticker
+        ).first()
 
         if not position or position.quantity < quantity:
             raise ValueError("Not enough shares to sell.")
@@ -49,8 +59,6 @@ def sell_stock(portfolio_id, ticker, quantity, price):
         if position.quantity == 0:
             position.average_price = 0
 
-        # Add transaction
-        add_transaction(session, portfolio_id, ticker, quantity, price, TransactionType.sell)
-
         session.commit()
-        return position
+
+        return f"Successfully sold {quantity} of {ticker} stock at ${float(price):.2f}"
