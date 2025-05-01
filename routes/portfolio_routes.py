@@ -33,7 +33,7 @@ def get_current_user_portfolios():
         return jsonify({"error": str(e)}), 500
 
 # You can also protect your existing routes
-@portfolio_bp.route('/api/portfolios', methods=['POST'])
+@portfolio_bp.route('/api/portfolios/add', methods=['POST'])
 @auth_required  # Apply here too if you want
 def add_portfolio():
     data = request.json
