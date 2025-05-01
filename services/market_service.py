@@ -1,4 +1,5 @@
 import yfinance as yf
+import logging
 
 TICKERS = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "META",
@@ -17,23 +18,34 @@ def format_market_cap(market_cap):
 def fetch_market_data():
     market_data = []
     for ticker in TICKERS:
-        stock = yf.Ticker(ticker)
-        info = stock.info
+        try:
+            stock = yf.Ticker(ticker)
+            info = stock.info
 
-        price = info.get("regularMarketPrice", 0)
-        previous_close = info.get("regularMarketPreviousClose", price)
-        change = price - previous_close
+            price = info.get("regularMarketPrice", 0)
+            previous_close = info.get("regularMarketPreviousClose", price)
+            change = price - previous_close
 
-        market_cap = info.get("marketCap", 0)
-        formatted_cap = format_market_cap(market_cap)
+            market_cap = info.get("marketCap", 0)
+            formatted_cap = format_market_cap(market_cap)
 
-        market_data.append({
-            "ticker": ticker,
-            "name": info.get("shortName", "N/A"),
-            "price": round(price, 2),
-            "change": round(change, 2),
-            "marketCap": formatted_cap,
-            "sector": info.get("sector", "N/A")
-        })
-
+            market_data.append({
+                "ticker": ticker,
+                "name": info.get("shortName", "N/A"),
+                "price": round(price, 2),
+                "change": round(change, 2),
+                "marketCap": formatted_cap,
+                "sector": info.get("sector", "N/A")
+            })
+        except Exception as e:
+            logging.error(f"Error fetching data for {ticker}: {str(e)}")
+            market_data.append({
+                "ticker": ticker,
+                "name": "Error",
+                "price": 0,
+                "change": 0,
+                "marketCap": "N/A",
+                "sector": "N/A",
+                "error": str(e)
+            })
     return market_data

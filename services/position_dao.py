@@ -4,7 +4,6 @@ from services.transaction_dao import add_transaction
 from db import get_session
 from decimal import Decimal
 
-
 def buy_stock(portfolio_id, ticker, quantity, price):
     price = Decimal(str(price))
 
@@ -30,16 +29,17 @@ def buy_stock(portfolio_id, ticker, quantity, price):
             session.add(position)
 
         session.commit()
+        
+        # Add transaction record
+        add_transaction(
+            portfolio_id=portfolio_id,
+            ticker=ticker,
+            quantity=quantity,
+            price=price,
+            transaction_type=TransactionType.buy
+        )
 
         return f"Successfully bought {quantity} of {ticker} stock at ${float(price):.2f}"
-
-def get_positions_by_portfolio(portfolio_id):
-    with get_session() as session:
-        positions = session.query(Position).filter_by(portfolio_id=portfolio_id).all()
-        for pos in positions:
-            _ = pos.id, pos.portfolio_id, pos.ticker, pos.quantity, pos.average_price, pos.created_at, pos.updated_at
-            session.expunge(pos)
-        return positions
 
 def sell_stock(portfolio_id, ticker, quantity, price):
     price = Decimal(str(price))
@@ -60,5 +60,14 @@ def sell_stock(portfolio_id, ticker, quantity, price):
             position.average_price = 0
 
         session.commit()
+        
+        # Add transaction record
+        add_transaction(
+            portfolio_id=portfolio_id,
+            ticker=ticker,
+            quantity=quantity,
+            price=price,
+            transaction_type=TransactionType.sell
+        )
 
         return f"Successfully sold {quantity} of {ticker} stock at ${float(price):.2f}"
