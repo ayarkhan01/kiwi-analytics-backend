@@ -1,19 +1,41 @@
-from flask import Flask
+from flask import Flask, jsonify, send_from_directory, g
+import os
+from routes.market_routes import market_bp
+from routes.portfolio_routes import portfolio_bp
+from routes.team_routes import team_bp
+from routes.user_routes import user_bp
+from logging_config import setup_logging
 
 app = Flask(__name__)
+setup_logging(app)
 
+app = Flask(__name__)
+app.config['STATIC_FOLDER'] = 'static'  # Set the static folder
+
+# Register blueprints
+app.register_blueprint(market_bp)
+app.register_blueprint(portfolio_bp)
+app.register_blueprint(team_bp)
+app.register_blueprint(user_bp)
+
+# Basic routes
 @app.route('/')
 def homepage():
-    return "<p>Homepage!<p>"
+    return jsonify({"message": "Finance Portfolio API"})
 
-@app.route('/portfolios')
-def about():
-    return "<p>Portfolios</p>"
+# Serve static files (including images)
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(app.config['STATIC_FOLDER'], filename)
 
-@app.route('/market')
-def about():
-    return "<p>Market!</p>"
+# Error handlers
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Resource not found"}), 404
 
-@app.route('/about')
-def about():
-    return "<p>About!</p>"
+@app.errorhandler(500)
+def server_error(error):
+    return jsonify({"error": "Internal server error"}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
