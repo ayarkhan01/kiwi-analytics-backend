@@ -11,7 +11,13 @@ def add_transaction(portfolio_id, ticker, quantity, price, transaction_type):
             price=price
         )
         session.add(transaction)
-        session.commit()  # optional, but ensures it's saved
+        # The session will be committed automatically when exiting the 'with' block
+        # thanks to the context manager in db.py
+        
+        # Return the created transaction ID
+        session.flush()  # This writes to DB and generates the ID
+        transaction_id = transaction.id
+        return transaction_id
 
 def get_transactions_for_portfolio(portfolio_id):
     with get_session() as session:
@@ -27,5 +33,3 @@ def get_transactions_for_portfolio(portfolio_id):
             }
             for t in transactions
         ]
-
-
