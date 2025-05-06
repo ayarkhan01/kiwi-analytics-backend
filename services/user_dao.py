@@ -13,12 +13,13 @@ def create_user(username, password):
         return user_id
 
 def password_match(username, password):
-    """Securely verify password"""
+    """Verify password"""
     with get_session() as session:
         user = session.query(User).filter_by(username=username).first()
         if not user:
             return False
-        return (user.password, password)
+        # Simple password comparison, without hashing
+        return user.password == password
 
 def get_user_id(username):
     """Get user ID by username"""

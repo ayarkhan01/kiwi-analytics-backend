@@ -11,11 +11,12 @@ from services.position_dao import (
     sell_stock
 )
 from services.transaction_dao import get_transactions_for_portfolio
-from models.portfolio import Portfolio,StrategyEnum
+from models.portfolio import Portfolio, StrategyEnum
 from services.market_service import fetch_market_data
 from services.position_dao import get_positions_by_portfolio
 
 portfolio_bp = Blueprint('portfolio', __name__)
+
 @portfolio_bp.route('/api/portfolios/user', methods=['POST'])
 def get_current_user_portfolios():
     try:
@@ -25,10 +26,11 @@ def get_current_user_portfolios():
         if not user_id:
             return jsonify({"error": "user_id is required"}), 400
             
-        # Get user's portfolios
-        portfolios = get_portfolio_by_id(user_id)
+        # Get user's portfolios - FIXED: use get_portfolios_by_user instead of get_portfolio_by_id
+        portfolios = get_portfolios_by_user(user_id)
         
-        # Check if we received a single portfolio instead of a list
+        # We don't need this check anymore since get_portfolios_by_user always returns a list
+        # but keeping it for extra safety
         if not isinstance(portfolios, list):
             portfolios = [portfolios]
         
@@ -47,13 +49,9 @@ def get_current_user_portfolios():
         for portfolio in portfolios:
             positions = get_positions_by_portfolio(portfolio.id)
             positions_list = []
-
-            # Make sure the positions are properly loaded before accessing them
-            # Use SQLAlchemy's options to eagerly load the positions if needed
             
             for p in positions:
                 # Convert SQLAlchemy model to dictionary to avoid session issues
-                # Method 1: Manually extract needed attributes
                 ticker = p.ticker
                 position_id = p.id
                 quantity = p.quantity
@@ -96,13 +94,10 @@ def get_current_user_portfolios():
         return jsonify({"error": str(e)}), 500
 
 
-# You can also protect your existing routes
 @portfolio_bp.route('/api/portfolios/add', methods=['POST'])
 def add_portfolio():
     data = request.json
     try:
-        # You could use g.user_id instead of getting it from the request
-        # user_id = g.user_id
         strategy = StrategyEnum[data.get('strategy')]
         portfolio = create_portfolio(
             user_id=data.get('user_id'),
@@ -117,5 +112,3 @@ def add_portfolio():
         }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# Keep your other routes...

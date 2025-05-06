@@ -11,10 +11,10 @@ def get_positions_by_portfolio(portfolio_id):
         # Force-load the attributes before the session closes
         for p in positions:
             _ = p.id, p.ticker, p.quantity, p.average_price, p.created_at, p.updated_at
-
+            # Detach from session to avoid DetachedInstanceError
+            session.expunge(p)
+            
         return positions
-
-
 
 def buy_stock(portfolio_id, ticker, quantity, price):
     price = Decimal(str(price))
@@ -39,20 +39,19 @@ def buy_stock(portfolio_id, ticker, quantity, price):
                 average_price=price
             )
             session.add(position)
+        
+        # The session is committed automatically when exiting the with block
 
-        session.commit()
+    # Now add the transaction in a separate session
+    transaction_id = add_transaction(
+        portfolio_id=portfolio_id,
+        ticker=ticker,
+        quantity=quantity,
+        price=price,
+        transaction_type=TransactionType.buy
+    )
 
-        # Log the transaction
-        add_transaction(
-            portfolio_id=portfolio_id,
-            ticker=ticker,
-            quantity=quantity,
-            price=price,
-            transaction_type=TransactionType.buy
-        )
-
-        return f"Successfully bought {quantity} shares of {ticker} at ${float(price):.2f}"
-
+    return f"Successfully bought {quantity} shares of {ticker} at ${float(price):.2f}"
 
 def sell_stock(portfolio_id, ticker, quantity, price):
     price = Decimal(str(price))
@@ -70,16 +69,16 @@ def sell_stock(portfolio_id, ticker, quantity, price):
 
         if position.quantity == 0:
             position.average_price = 0
+        
+        # The session is committed automatically when exiting the with block
 
-        session.commit()
+    # Now add the transaction in a separate session
+    transaction_id = add_transaction(
+        portfolio_id=portfolio_id,
+        ticker=ticker,
+        quantity=quantity,
+        price=price,
+        transaction_type=TransactionType.sell
+    )
 
-        # Log the transaction
-        add_transaction(
-            portfolio_id=portfolio_id,
-            ticker=ticker,
-            quantity=quantity,
-            price=price,
-            transaction_type=TransactionType.sell
-        )
-
-        return f"Successfully sold {quantity} shares of {ticker} at ${float(price):.2f}"
+    return f"Successfully sold {quantity} shares of {ticker} at ${float(price):.2f}"

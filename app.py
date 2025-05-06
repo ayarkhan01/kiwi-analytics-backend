@@ -5,8 +5,7 @@ from routes.portfolio_routes import portfolio_bp
 from routes.team_routes import team_bp
 from routes.user_routes import user_bp
 
-app = Flask(__name__)
-
+# Initialize Flask app once
 app = Flask(__name__)
 app.config['STATIC_FOLDER'] = 'static'  # Set the static folder
 
