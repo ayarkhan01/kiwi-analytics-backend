@@ -12,15 +12,16 @@ from services.position_dao import (
 )
 from services.transaction_dao import get_transactions_for_portfolio
 from models.portfolio import StrategyEnum
-from middleware import auth_required  # Import the middleware
 
 portfolio_bp = Blueprint('portfolio', __name__)
 
 # Add a new route for getting the current user's portfolios
 @portfolio_bp.route('/api/portfolios/user', methods=['GET'])
-@auth_required  # Apply the decorator here
+# @auth_required  # Apply the decorator here
 def get_current_user_portfolios():
-    user_id = g.user_id  # Get the authenticated user ID from the middleware
+    # user_id = g.user_id  # Get the authenticated user ID from the middleware
+    data = request.json
+    user_id = data.get('user_id')
     try:
         portfolios = get_portfolios_by_user(user_id)
         return jsonify([{
@@ -34,7 +35,6 @@ def get_current_user_portfolios():
 
 # You can also protect your existing routes
 @portfolio_bp.route('/api/portfolios/add', methods=['POST'])
-@auth_required  # Apply here too if you want
 def add_portfolio():
     data = request.json
     try:
