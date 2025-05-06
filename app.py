@@ -4,9 +4,14 @@ from routes.market_routes import market_bp
 from routes.portfolio_routes import portfolio_bp
 from routes.team_routes import team_bp
 from routes.user_routes import user_bp
+from flask_cors import CORS
+
+
+
 
 # Initialize Flask app once
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 app.config['STATIC_FOLDER'] = 'static'  # Set the static folder
 
 # Register blueprints
