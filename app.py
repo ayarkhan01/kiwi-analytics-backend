@@ -4,10 +4,8 @@ from routes.market_routes import market_bp
 from routes.portfolio_routes import portfolio_bp
 from routes.team_routes import team_bp
 from routes.user_routes import user_bp
-from logging_config import setup_logging
 
 app = Flask(__name__)
-setup_logging(app)
 
 app = Flask(__name__)
 app.config['STATIC_FOLDER'] = 'static'  # Set the static folder
