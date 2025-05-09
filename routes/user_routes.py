@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session
-from services.user_dao import password_match, get_user_id, create_user
+from services.user_dao import password_match, get_user_id, create_user, delete_user
 
 user_bp = Blueprint('user', __name__)
 
@@ -33,3 +33,16 @@ def register():
         return jsonify({"user_id": user_id, "message": "Registration successful"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@user_bp.route('/api/delete_user', methods=['POST'])
+def delete_user_route():
+    data = request.json
+    user_id = data.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
+
+    if delete_user(user_id):
+        return jsonify({"message": "User deleted successfully"}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404

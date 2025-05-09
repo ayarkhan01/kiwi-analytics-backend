@@ -112,3 +112,19 @@ def add_portfolio():
         }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@portfolio_bp.route('/api/portfolios/delete', methods=['POST'])
+def delete_portfolio():
+    data = request.json
+    try:
+        portfolio = get_portfolio_by_id(data.get('portfolio_id'))
+        if not portfolio:
+            return jsonify({"error": "Portfolio not found"}), 404
+
+        delete_portfolio(portfolio.id)
+        return jsonify({"message": "Portfolio deleted successfully"}), 200
+    except Exception as e:
+        # Rollback the database session in case of an error
+        if hasattr(g, 'db_session'):
+            g.db_session.rollback()
+        return jsonify({"error": str(e)}), 500

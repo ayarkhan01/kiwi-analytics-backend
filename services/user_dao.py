@@ -26,3 +26,17 @@ def get_user_id(username):
     with get_session() as session:
         user = session.query(User).filter_by(username=username).first()
         return user.id if user else None
+    
+def delete_user(user_id):
+    """Delete user by ID"""
+    with get_session() as session:
+        try:
+            user = session.query(User).filter_by(id=user_id).first()
+            if user:
+                session.delete(user)
+                session.commit()
+                return True
+            return False
+        except Exception:
+            session.rollback()
+            raise
