@@ -11,35 +11,93 @@ from services.position_dao import (
     sell_stock
 )
 from services.transaction_dao import get_transactions_for_portfolio
-from models.portfolio import StrategyEnum
-from middleware import auth_required  # Import the middleware
+from models.portfolio import Portfolio, StrategyEnum
+from services.market_service import fetch_market_data
+from services.position_dao import get_positions_by_portfolio
 
 portfolio_bp = Blueprint('portfolio', __name__)
 
-# Add a new route for getting the current user's portfolios
-@portfolio_bp.route('/api/portfolios/user', methods=['GET'])
-@auth_required  # Apply the decorator here
+@portfolio_bp.route('/api/portfolios/user', methods=['POST'])
 def get_current_user_portfolios():
-    user_id = g.user_id  # Get the authenticated user ID from the middleware
     try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+            
+        # Get user's portfolios - FIXED: use get_portfolios_by_user instead of get_portfolio_by_id
         portfolios = get_portfolios_by_user(user_id)
-        return jsonify([{
-            'id': p.id,
-            'name': p.name,
-            'strategy': p.strategy.value,
-            'created_at': p.created_at.isoformat() if p.created_at else None
-        } for p in portfolios])
+        
+        # We don't need this check anymore since get_portfolios_by_user always returns a list
+        # but keeping it for extra safety
+        if not isinstance(portfolios, list):
+            portfolios = [portfolios]
+        
+        market_data = fetch_market_data()
+        stock_lookup = {s["ticker"]: s for s in market_data}
+
+        def calculate_position_metrics(quantity, avg_price, current_price):
+            market_value = quantity * current_price
+            cost_basis = quantity * avg_price
+            profit_loss = market_value - cost_basis
+            profit_loss_percent = ((current_price - avg_price) / avg_price) * 100 if avg_price != 0 else 0
+            return market_value, cost_basis, profit_loss, profit_loss_percent
+
+        portfolio_summary = []
+
+        for portfolio in portfolios:
+            positions = get_positions_by_portfolio(portfolio.id)
+            positions_list = []
+            
+            for p in positions:
+                # Convert SQLAlchemy model to dictionary to avoid session issues
+                ticker = p.ticker
+                position_id = p.id
+                quantity = p.quantity
+                average_price = float(p.average_price)
+                created_at = p.created_at.isoformat() if hasattr(p, 'created_at') and p.created_at else None
+                updated_at = p.updated_at.isoformat() if hasattr(p, 'updated_at') and p.updated_at else None
+                
+                stock_info = stock_lookup.get(ticker, {})
+                current_price = stock_info.get("price", 0)
+                mv, cb, pnl, pnl_pct = calculate_position_metrics(quantity, average_price, current_price)
+
+                positions_list.append({
+                    "id": position_id,
+                    "ticker": ticker,
+                    "name": stock_info.get("name", ticker),
+                    "sector": stock_info.get("sector", "Unknown"),
+                    "quantity": quantity,
+                    "average_price": average_price,
+                    "created_at": created_at,
+                    "updated_at": updated_at,
+                    "current_price": current_price,
+                    "market_value": round(mv, 2),
+                    "cost_basis": round(cb, 2),
+                    "profit_loss": round(pnl, 2),
+                    "profit_loss_percent": round(pnl_pct, 2),
+                    "percent_change": stock_info.get("change", 0),
+                    "market_cap": stock_info.get("marketCap", "N/A")
+                })
+
+            portfolio_summary.append({
+                "portfolio_id": portfolio.id,
+                "portfolio_name": portfolio.name,
+                "strategy": portfolio.strategy.value if hasattr(portfolio.strategy, 'value') else portfolio.strategy,
+                "positions": positions_list
+            })
+
+        return jsonify(portfolio_summary), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# You can also protect your existing routes
+
 @portfolio_bp.route('/api/portfolios/add', methods=['POST'])
-@auth_required  # Apply here too if you want
 def add_portfolio():
     data = request.json
     try:
-        # You could use g.user_id instead of getting it from the request
-        # user_id = g.user_id
         strategy = StrategyEnum[data.get('strategy')]
         portfolio = create_portfolio(
             user_id=data.get('user_id'),
@@ -54,5 +112,17 @@ def add_portfolio():
         }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# Keep your other routes...
+    
+@portfolio_bp.route('/api/portfolios/buy', methods=['POST'])
+def buy_stock_route():
+    try:
+        data = request.json
+        result = buy_stock(
+            portfolio_id=data['portfolio_id'],
+            ticker=data['ticker'],
+            quantity=data['quantity'],
+            price=data['price']
+        )
+        return jsonify({"message": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
