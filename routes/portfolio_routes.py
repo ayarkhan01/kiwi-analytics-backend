@@ -128,3 +128,16 @@ def delete_portfolio_route():
         if hasattr(g, 'db_session'):
             g.db_session.rollback()
         return jsonify({"error": str(e)}), 500
+@portfolio_bp.route('/api/portfolios/buy', methods=['POST'])
+def buy_stock_route():
+    try:
+        data = request.json
+        result = buy_stock(
+            portfolio_id=data['portfolio_id'],
+            ticker=data['ticker'],
+            quantity=data['quantity'],
+            price=data['price']
+        )
+        return jsonify({"message": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
