@@ -114,7 +114,7 @@ def add_portfolio():
         return jsonify({"error": str(e)}), 500
     
 @portfolio_bp.route('/api/portfolios/delete', methods=['POST'])
-def delete_portfolio():
+def delete_portfolio_route():
     data = request.json
     try:
         portfolio = get_portfolio_by_id(data.get('portfolio_id'))
