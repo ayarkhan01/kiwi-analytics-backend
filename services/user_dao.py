@@ -1,5 +1,6 @@
 from db import get_session
 from models.users import User
+from models.portfolio import Portfolio
 
 def create_user(username, password):
     """Create a new user with hashed password"""
@@ -28,15 +29,18 @@ def get_user_id(username):
         return user.id if user else None
     
 def delete_user(user_id):
-    """Delete user by ID"""
+    """Delete a user and their associated portfolios"""
     with get_session() as session:
-        try:
-            user = session.query(User).filter_by(id=user_id).first()
-            if user:
-                session.delete(user)
-                session.commit()
-                return True
+        user = session.query(User).filter_by(id=user_id).first()
+
+        if not user:
             return False
-        except Exception:
-            session.rollback()
-            raise
+
+        # Delete all portfolios associated with the user
+        session.query(Portfolio).filter_by(user_id=user_id).delete()
+
+        # Delete the user
+        session.delete(user)
+
+        # Committing the transaction is handled by context manager
+        return True

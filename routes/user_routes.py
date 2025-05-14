@@ -42,7 +42,10 @@ def delete_user_route():
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
 
-    if delete_user(user_id):
-        return jsonify({"message": "User deleted successfully"}), 200
-    else:
-        return jsonify({"error": "User not found"}), 404
+    try:
+        if delete_user(user_id):
+            return jsonify({"message": "User and associated portfolios deleted successfully"}), 200
+        else:
+            return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
