@@ -1,0 +1,21 @@
+ticker,name,price,change,marketCap,sector,industry
+AAPL,Apple Inc,212.33,0.0,3171.32B,Technology,Consumer Electronics
+MSFT,Microsoft Corporation,452.94,0.0,3366.50B,Technology,Software - Infrastructure
+AMZN,Amazon.com Inc,210.25,0.0,2232.09B,Consumer Cyclical,Internet Retail
+NVDA,NVIDIA Corp,135.34,0.0,3300.61B,Technology,Semiconductors
+GOOGL,Alphabet Inc,165.37,0.0,2014.46B,Communication Services,Internet Content & Information
+META,Meta Platforms Inc,659.36,0.0,1657.73B,Communication Services,Internet Content & Information
+TSLA,Tesla Inc,347.68,0.0,1118.32B,Consumer Cyclical,Auto Manufacturers
+BRK.B,N/A,0.0,0.0,N/A,N/A,N/A
+JPM,JPMorgan Chase & Co,265.64,0.0,738.24B,Financial,Banks - Diversified
+V,Visa Inc,356.46,0.0,691.23B,Financial,Credit Services
+WMT,Walmart Inc,96.83,0.0,774.73B,Consumer Defensive,Discount Stores
+BAC,Bank Of America Corp,44.74,0.0,336.98B,Financial,Banks - Diversified
+DIS,Walt Disney Co,112.94,0.0,203.04B,Communication Services,Entertainment
+NFLX,Netflix Inc,1150.99,0.0,489.83B,Communication Services,Entertainment
+AMD,Advanced Micro Devices Inc,117.72,0.0,190.87B,Technology,Semiconductors
+KO,Coca-Cola Co,69.16,0.0,297.68B,Consumer Defensive,Beverages - Non-Alcoholic
+PFE,Pfizer Inc,22.02,0.0,125.19B,Healthcare,Drug Manufacturers - General
+INTC,Intel Corp,21.52,0.0,93.87B,Technology,Semiconductors
+NKE,"Nike, Inc",61.73,0.0,91.11B,Consumer Cyclical,Footwear & Accessories
+XOM,Exxon Mobil Corp,108.48,0.0,467.51B,Energy,Oil & Gas Integrated

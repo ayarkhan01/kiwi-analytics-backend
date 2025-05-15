@@ -1,51 +1,25 @@
-import yfinance as yf
+import pandas as pd
+import os
 import logging
 
-TICKERS = [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "META",
-    "TSLA", "NVDA", "JPM", "WMT", "JNJ", "DIS", "PFE"
-]
-
-def format_market_cap(market_cap):
-    if market_cap >= 1_000_000_000_000:
-        return f"{round(market_cap / 1_000_000_000_000, 2)}T"
-    elif market_cap >= 1_000_000_000:
-        return f"{round(market_cap / 1_000_000_000, 2)}B"
-    elif market_cap >= 1_000_000:
-        return f"{round(market_cap / 1_000_000, 2)}M"
-    return str(market_cap)
-
 def fetch_market_data():
-    market_data = []
-    for ticker in TICKERS:
-        try:
-            stock = yf.Ticker(ticker)
-            info = stock.info
-
-            price = info.get("regularMarketPrice", 0)
-            previous_close = info.get("regularMarketPreviousClose", price)
-            change = price - previous_close
-
-            market_cap = info.get("marketCap", 0)
-            formatted_cap = format_market_cap(market_cap)
-
-            market_data.append({
-                "ticker": ticker,
-                "name": info.get("shortName", "N/A"),
-                "price": round(price, 2),
-                "change": round(change, 2),
-                "marketCap": formatted_cap,
-                "sector": info.get("sector", "N/A")
-            })
-        except Exception as e:
-            logging.error(f"Error fetching data for {ticker}: {str(e)}")
-            market_data.append({
-                "ticker": ticker,
-                "name": "Error",
-                "price": 0,
-                "change": 0,
-                "marketCap": "N/A",
-                "sector": "N/A",
-                "error": str(e)
-            })
-    return market_data
+    """Read market data directly from the CSV file"""
+    csv_path = 'popular_stocks_data.csv'
+    
+    try:
+        # Check if CSV file exists
+        if not os.path.exists(csv_path):
+            logging.error(f"CSV file not found: {csv_path}")
+            return []
+        
+        # Read the CSV file
+        df = pd.read_csv(csv_path)
+        
+        # Convert DataFrame to list of dictionaries
+        market_data = df.to_dict('records')
+        
+        return market_data
+        
+    except Exception as e:
+        logging.error(f"Error reading market data from CSV: {str(e)}")
+        return []
