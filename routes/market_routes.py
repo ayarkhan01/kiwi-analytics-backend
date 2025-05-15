@@ -10,3 +10,4 @@ def get_market_data():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
