@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from services.market_service import fetch_market_data
+from services.market_dao import fetch_market_data
 
 market_bp = Blueprint('market', __name__)
 
