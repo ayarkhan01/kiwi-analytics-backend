@@ -12,7 +12,7 @@ from services.position_dao import (
 )
 from services.transaction_dao import get_transactions_for_portfolio
 from models.portfolio import Portfolio, StrategyEnum
-from services.market_service import fetch_market_data
+from services.market_dao import fetch_market_data
 from services.position_dao import get_positions_by_portfolio
 
 portfolio_bp = Blueprint('portfolio', __name__)
