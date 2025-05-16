@@ -1,51 +1,119 @@
-import yfinance as yf
-import logging
+import requests
+import pandas as pd
+from bs4 import BeautifulSoup
+import time
+import random
+import os
+from datetime import datetime
 
-TICKERS = [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "META",
-    "TSLA", "NVDA", "JPM", "WMT", "JNJ", "DIS", "PFE"
-]
+CACHE_FILE = 'popular_stocks_data.csv'
+TIMESTAMP_FILE = 'market_data_timestamp.txt'
 
-def format_market_cap(market_cap):
-    if market_cap >= 1_000_000_000_000:
-        return f"{round(market_cap / 1_000_000_000_000, 2)}T"
-    elif market_cap >= 1_000_000_000:
-        return f"{round(market_cap / 1_000_000_000, 2)}B"
-    elif market_cap >= 1_000_000:
-        return f"{round(market_cap / 1_000_000, 2)}M"
-    return str(market_cap)
+def get_finviz_stock_info(ticker):
+    url = f"https://finviz.com/quote.ashx?t={ticker}"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
 
-def fetch_market_data():
-    market_data = []
-    for ticker in TICKERS:
-        try:
-            stock = yf.Ticker(ticker)
-            info = stock.info
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        soup = BeautifulSoup(response.text, "html.parser")
 
-            price = info.get("regularMarketPrice", 0)
-            previous_close = info.get("regularMarketPreviousClose", price)
-            change = price - previous_close
+        name_element = soup.find("h2", class_="quote-header_ticker-wrapper_company")
+        name = name_element.text.strip() if name_element else "N/A"
 
-            market_cap = info.get("marketCap", 0)
-            formatted_cap = format_market_cap(market_cap)
+        sector = "N/A"
+        industry = "N/A"
+        quote_links_div = soup.find("div", class_="quote-links")
+        if quote_links_div:
+            links = quote_links_div.find_all("a")
+            for link in links:
+                href = link.get('href', '')
+                if 'v=111&f=sec_' in href:
+                    sector = link.text.strip()
+                elif 'v=111&f=ind_' in href:
+                    industry = link.text.strip()
 
-            market_data.append({
-                "ticker": ticker,
-                "name": info.get("shortName", "N/A"),
-                "price": round(price, 2),
-                "change": round(change, 2),
-                "marketCap": formatted_cap,
-                "sector": info.get("sector", "N/A")
-            })
-        except Exception as e:
-            logging.error(f"Error fetching data for {ticker}: {str(e)}")
-            market_data.append({
-                "ticker": ticker,
-                "name": "Error",
-                "price": 0,
-                "change": 0,
-                "marketCap": "N/A",
-                "sector": "N/A",
-                "error": str(e)
-            })
-    return market_data
+        data = {}
+        snapshot_table = soup.find("table", class_="snapshot-table2")
+        if snapshot_table:
+            rows = snapshot_table.find_all("tr")
+            for row in rows:
+                cells = row.find_all("td")
+                for i in range(0, len(cells), 2):
+                    if i + 1 < len(cells):
+                        data[cells[i].text.strip()] = cells[i + 1].text.strip()
+
+        price = 0.0
+        change = 0.0
+        market_cap = data.get('Market Cap', "N/A")
+
+        price_element = soup.find("strong", class_="quote-price_wrapper_price")
+        if price_element:
+            try:
+                price = float(price_element.text.strip().replace(",", ""))
+            except:
+                pass
+
+        change_element = soup.select_one("table.quote-price_wrapper_change td")
+        if change_element:
+            try:
+                change = float(change_element.text.strip().replace(",", ""))
+            except:
+                pass
+
+        return {
+            "ticker": ticker,
+            "name": name,
+            "price": round(price, 2),
+            "change": round(change, 2),
+            "marketCap": market_cap,
+            "sector": sector,
+            "industry": industry
+        }
+
+    except Exception as e:
+        print(f"Error fetching {ticker}: {e}")
+        return {
+            "ticker": ticker,
+            "name": "Error",
+            "price": 0.0,
+            "change": 0.0,
+            "marketCap": "N/A",
+            "sector": "N/A",
+            "industry": "N/A"
+        }
+
+def fetch_and_cache_market_data():
+    today = datetime.today().strftime('%Y-%m-%d')
+
+    # Only run if not already run today
+    if os.path.exists(TIMESTAMP_FILE):
+        with open(TIMESTAMP_FILE, 'r') as f:
+            last_run = f.read().strip()
+            if last_run == today:
+                print("Market data already fetched today.")
+                return
+
+    print("Fetching fresh market data...")
+
+    popular_tickers = [
+        "AAPL", "MSFT", "AMZN", "GOOGL", "META",
+        "TSLA", "JPM", "V", "DIS", "NFLX",
+        "AMD", "KO", "PFE", "INTC", "NKE"
+    ]
+
+    all_data = []
+    for ticker in popular_tickers:
+        info = get_finviz_stock_info(ticker)
+        all_data.append(info)
+        time.sleep(1.5 + random.random())
+
+    df = pd.DataFrame(all_data)
+    df.to_csv(CACHE_FILE, index=False)
+
+    with open(TIMESTAMP_FILE, 'w') as f:
+        f.write(today)
+
+    print("Market data saved.")
+

@@ -6,6 +6,10 @@ from routes.team_routes import team_bp
 from routes.user_routes import user_bp
 from flask_cors import CORS
 
+# Import and trigger the market data fetch
+from services.market_service import fetch_and_cache_market_data
+fetch_and_cache_market_data()  # <-- run once per backend startup
+
 # Initialize Flask app once
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
