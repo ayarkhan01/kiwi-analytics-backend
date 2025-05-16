@@ -43,8 +43,9 @@ def delete_user_route():
         return jsonify({"error": "User ID is required"}), 400
 
     try:
+        # The delete_user function now deletes all positions for the user's portfolios as well
         if delete_user(user_id):
-            return jsonify({"message": "User and associated portfolios deleted successfully"}), 200
+            return jsonify({"message": "User, associated portfolios, and positions deleted successfully"}), 200
         else:
             return jsonify({"error": "User not found"}), 404
     except Exception as e:

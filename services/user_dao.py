@@ -29,12 +29,20 @@ def get_user_id(username):
         return user.id if user else None
     
 def delete_user(user_id):
-    """Delete a user and their associated portfolios"""
+    """Delete a user and their associated portfolios and positions"""
     with get_session() as session:
         user = session.query(User).filter_by(id=user_id).first()
 
         if not user:
             return False
+
+        # Find all portfolios for the user
+        portfolios = session.query(Portfolio).filter_by(user_id=user_id).all()
+
+        # Delete all positions for each portfolio
+        from models.positions import Position  # Import here to avoid circular import
+        for portfolio in portfolios:
+            session.query(Position).filter_by(portfolio_id=portfolio.id).delete()
 
         # Delete all portfolios associated with the user
         session.query(Portfolio).filter_by(user_id=user_id).delete()
