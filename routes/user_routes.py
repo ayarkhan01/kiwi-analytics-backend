@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from services.user_dao import password_match, get_user_id, create_user, delete_user
+from services.user_dao import get_user_balance
 
 user_bp = Blueprint('user', __name__)
 
@@ -48,5 +49,20 @@ def delete_user_route():
             return jsonify({"message": "User, associated portfolios, and positions deleted successfully"}), 200
         else:
             return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@user_bp.route('/api/user/balance', methods=['POST'])
+def get_user_balance_route():
+    try:
+        data = request.get_json()
+        user_id = data.get("user_id")
+
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+
+        balance = get_user_balance(user_id)
+        return jsonify({"balance": float(balance)}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -52,3 +52,19 @@ def delete_user(user_id):
 
         # Committing the transaction is handled by context manager
         return True
+    
+def get_user_balance(user_id):
+    """Get the current balance of a user by ID"""
+    with get_session() as session:
+        user = session.query(User).filter_by(id=user_id).first()
+        return float(user.balance) if user and user.balance is not None else 0.0
+
+def update_user_balance(user_id, new_balance):
+    """Update the balance of a user"""
+    with get_session() as session:
+        user = session.query(User).filter_by(id=user_id).first()
+        if user:
+            user.balance = new_balance
+            session.add(user)
+            return True
+        return False
