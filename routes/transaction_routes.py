@@ -1,49 +1,35 @@
 from flask import Blueprint, jsonify, request
+from services.portfolio_dao import get_portfolios_by_user
+from services.transaction_dao import get_transactions_for_portfolio
 
-transactions_bp = Blueprint('transactions', __name__, url_prefix='/api')
+transactions_bp = Blueprint('transactions', __name__)
 
-# Simulated in-memory transactions list
-transactions = [
-    {
-        "id": 201,
-        "portfolio": "Retirement",
-        "ticker": "MSFT",
-        "type": "Buy",
-        "quantity": 8,
-        "price": 330.12,
-        "dateTime": "2024-11-01T09:30:00"
-    },
-    {
-        "id": 202,
-        "portfolio": "Growth",
-        "ticker": "AAPL",
-        "type": "Sell",
-        "quantity": 4,
-        "price": 198.76,
-        "dateTime": "2024-11-02T14:45:00"
-    }
-]
+@transactions_bp.route('/api/transactions', methods=['POST'])
+def get_user_transactions():
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
 
-@transactions_bp.route('/transactions', methods=['GET'])
-def get_transactions():
-    return jsonify(transactions)
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
 
-@transactions_bp.route('/transactions', methods=['POST'])
-def add_transaction():
-    new_txn = request.get_json()
+        # Get all portfolios for the user
+        portfolios = get_portfolios_by_user(user_id)
+        
+        # Get transactions for each portfolio
+        all_transactions = []
+        for portfolio in portfolios:
+            portfolio_transactions = get_transactions_for_portfolio(portfolio.id)
+            # Add portfolio info to each transaction
+            for transaction in portfolio_transactions:
+                transaction['portfolio_id'] = portfolio.id
+                transaction['portfolio_name'] = portfolio.name
+            all_transactions.extend(portfolio_transactions)
 
-    # Basic validation 
-    required_fields = {"portfolio", "ticker", "type", "quantity", "price", "dateTime"}
-    if not new_txn or not required_fields.issubset(new_txn.keys()):
-        return jsonify({"error": "Missing required fields"}), 400
+        # Sort transactions by executed_at in descending order (most recent first)
+        all_transactions.sort(key=lambda x: x['executed_at'], reverse=True)
 
-    # Optional: Validate type is 'Buy' or 'Sell'
-    if new_txn['type'] not in ['Buy', 'Sell']:
-        return jsonify({"error": "Transaction type must be 'Buy' or 'Sell'"}), 400
+        return jsonify(all_transactions), 200
 
-    # Assign a new ID - just increment max id for demo
-    max_id = max(t['id'] for t in transactions) if transactions else 200
-    new_txn['id'] = max_id + 1
-
-    transactions.append(new_txn)
-    return jsonify(new_txn), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
