@@ -55,12 +55,13 @@ def get_finviz_stock_info(ticker):
             except:
                 pass
 
-        change_element = soup.select_one("table.quote-price_wrapper_change td")
-        if change_element:
+        if 'Change' in data:
             try:
-                change = float(change_element.text.strip().replace(",", ""))
+                change_str = data['Change'].replace('%', '').replace(',', '').strip()
+                change = float(change_str)
             except:
-                pass
+                change = 0.0
+
 
         return {
             "ticker": ticker,
