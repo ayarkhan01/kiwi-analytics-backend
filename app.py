@@ -7,8 +7,6 @@ from routes.market_routes import market_bp
 from routes.portfolio_routes import portfolio_bp
 from routes.team_routes import team_bp
 from routes.user_routes import user_bp
-
-# <-- UPDATED LINE: import transactions blueprint from transaction_routes.py
 from routes.transaction_routes import transactions_bp
 
 # Import and trigger the market data fetch
@@ -25,8 +23,6 @@ app.register_blueprint(market_bp)
 app.register_blueprint(portfolio_bp)
 app.register_blueprint(team_bp)
 app.register_blueprint(user_bp)
-
-# <-- UPDATED LINE: register transactions blueprint
 app.register_blueprint(transactions_bp)  
 
 # Basic homepage route
