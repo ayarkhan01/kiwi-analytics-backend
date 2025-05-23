@@ -8,7 +8,10 @@ from routes.portfolio_routes import portfolio_bp
 from routes.team_routes import team_bp
 from routes.user_routes import user_bp
 
-# <-- UPDATED LINE: import transactions blueprint from transaction_routes.py
+# Updated line: import sell blueprint
+from routes import sell_routes
+
+# Updated line: import transactions blueprint
 from routes.transaction_routes import transactions_bp
 
 # Import and trigger the market data fetch
@@ -26,7 +29,10 @@ app.register_blueprint(portfolio_bp)
 app.register_blueprint(team_bp)
 app.register_blueprint(user_bp)
 
-# <-- UPDATED LINE: register transactions blueprint
+# ✅ Register the sell blueprint
+app.register_blueprint(sell_routes.sell_bp, url_prefix="/api")
+
+# Updated line: register transactions blueprint
 app.register_blueprint(transactions_bp)  
 
 # Basic homepage route
