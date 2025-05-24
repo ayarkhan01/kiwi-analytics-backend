@@ -1,17 +1,16 @@
 ticker,name,price,change,marketCap,sector,industry
-AAPL,Apple Inc,211.26,-0.09,3155.34B,Technology,Consumer Electronics
-MSFT,Microsoft Corporation,454.27,0.25,3376.38B,Technology,Software - Infrastructure
-AMZN,Amazon.com Inc,205.59,0.2,2182.62B,Consumer Cyclical,Internet Retail
-GOOGL,Alphabet Inc,166.19,1.36,2024.68B,Communication Services,Internet Content & Information
-META,Meta Platforms Inc,640.34,-0.55,1609.91B,Communication Services,Internet Content & Information
-TSLA,Tesla Inc,349.98,2.09,1125.72B,Consumer Cyclical,Auto Manufacturers
-JPM,JPMorgan Chase & Co,267.56,0.03,743.57B,Financial,Banks - Diversified
-V,Visa Inc,365.12,0.78,708.03B,Financial,Credit Services
-BAC,Bank Of America Corp,44.69,0.7,336.60B,Financial,Banks - Diversified
-DIS,Walt Disney Co,113.42,1.07,203.90B,Communication Services,Entertainment
-NFLX,Netflix Inc,1191.53,1.15,507.08B,Communication Services,Entertainment
-AMD,Advanced Micro Devices Inc,117.17,1.9,189.98B,Technology,Semiconductors
-KO,Coca-Cola Co,72.0,0.54,309.91B,Consumer Defensive,Beverages - Non-Alcoholic
-PFE,Pfizer Inc,22.83,1.02,129.80B,Healthcare,Drug Manufacturers - General
-INTC,Intel Corp,21.66,0.51,94.48B,Technology,Semiconductors
-NKE,"Nike, Inc",63.11,1.14,93.15B,Consumer Cyclical,Footwear & Accessories
+AAPL,Apple Inc,195.27,-3.02,2916.52B,Technology,Consumer Electronics
+MSFT,Microsoft Corporation,450.18,-1.03,3345.98B,Technology,Software - Infrastructure
+AMZN,Amazon.com Inc,200.99,-1.04,2133.78B,Consumer Cyclical,Internet Retail
+GOOGL,Alphabet Inc,168.47,-1.4,2050.36B,Communication Services,Internet Content & Information
+META,Meta Platforms Inc,627.06,-1.49,1576.52B,Communication Services,Internet Content & Information
+TSLA,Tesla Inc,339.34,-0.5,1091.49B,Consumer Cyclical,Auto Manufacturers
+JPM,JPMorgan Chase & Co,260.71,0.02,724.54B,Financial,Banks - Diversified
+V,Visa Inc,353.54,-1.24,685.57B,Financial,Credit Services
+DIS,Walt Disney Co,109.72,-1.27,197.25B,Communication Services,Entertainment
+NFLX,Netflix Inc,1185.39,-0.22,504.47B,Communication Services,Entertainment
+AMD,Advanced Micro Devices Inc,110.31,-0.36,178.86B,Technology,Semiconductors
+KO,Coca-Cola Co,71.77,0.89,308.92B,Consumer Defensive,Beverages - Non-Alcoholic
+PFE,Pfizer Inc,23.32,1.22,132.58B,Healthcare,Drug Manufacturers - General
+INTC,Intel Corp,20.05,-2.43,87.46B,Technology,Semiconductors
+NKE,"Nike, Inc",60.02,-2.12,88.59B,Consumer Cyclical,Footwear & Accessories

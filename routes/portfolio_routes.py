@@ -141,3 +141,17 @@ def buy_stock_route():
         return jsonify({"message": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+@portfolio_bp.route('/api/portfolios/sell', methods=['POST'])
+def sell_stock_route():
+    try:
+        data = request.json
+        result = sell_stock(
+            portfolio_id=data['portfolio_id'],
+            ticker=data['ticker'],
+            quantity=data['quantity'],
+            price=data['price']
+        )
+        return jsonify({"message": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
